@@ -80,7 +80,7 @@ void main()
 		}
 
 		printf("\n\t\"bit%d_set:\\n\\t\"\n",x);
-		printf("\t\"orr "OUTPUTVALUE","OUTPUTVALUE",0x%08X //integrator1 += inputsample;\\n\\t\"\n",1<<(OVERSAMPLEVALUE-1-x));
+		printf("\t\"orr "OUTPUTVALUE","OUTPUTVALUE",#0x%08X //integrator1 += inputsample;\\n\\t\"\n",1<<(OVERSAMPLEVALUE-1-x));
 		printf("\t\"add "INTEGRATOR1","INTEGRATOR1","INPUTSAMPLE" //integrator1 += inputsample;\\n\\t\"\n");
 		printf("\t\"sub "INTEGRATOR1","INTEGRATOR1",#"SAMPLEMINVALUE_NEG" //integrator1 -= SAMPLEMINVALUE_NEG;\\n\\t\"\n");
 		printf("\t\"sub "INTEGRATOR2","INTEGRATOR2",#"SAMPLEMINVALUE_NEG" //integrator2 -= SAMPLEMINVALUE_NEG;\\n\\t\"\n");
