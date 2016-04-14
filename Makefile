@@ -15,5 +15,7 @@ sigmadelta_func.c: sigmadelta_compiler
 sigmadelta_func_testresults.csv: sigmadelta_func_test
 	./sigmadelta_func_test > sigmadelta_func_testresults.csv 
 
+evaluate: 
+	octave octave_evaluate_testresults.m
 clean:
-	rm sigmadelta_compiler sigmadelta_func.c sigmadelta_func_test sigmadelta_func_testresults.csv
+	rm sigmadelta_compiler sigmadelta_func.c sigmadelta_func_test sigmadelta_func_testresults.csv sigmadelta_func_testresults_spectrum.pdf
