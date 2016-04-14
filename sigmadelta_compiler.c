@@ -27,15 +27,21 @@
 #define OVERSAMPLEVALUE 32
 
 
-void main()
+int main()
 {
-	int x=16;
+	int x;
+
+#if ( defined(__arm__ ) || defined(ARM_ASM) ) && !defined(USE_C_GENERIC)
+	fprintf(stderr, "generating arm optimized sigmadelta_function\nmaxsamplevalue="SAMPLEMAXVALUE", minsamplevalue=-"SAMPLEMINVALUE_NEG", oversampling=%d\n", OVERSAMPLEVALUE);
+#else
+	fprintf(stderr, "generating generic c sigmadelta_function\nmaxsamplevalue="SAMPLEMAXVALUE", minsamplevalue=-"SAMPLEMINVALUE_NEG", oversampling=%d\n", OVERSAMPLEVALUE);
+#endif
 
 	printf("int sigmadelta_func(int s)\n");
 	printf("{\n\n");
 	printf("\tstatic int integrator1_store=0, integrator2_store=0;\n");
 
-#ifdef ARM_ASM
+#if ( defined(__arm__ ) || defined(ARM_ASM) ) && !defined(USE_C_GENERIC)
 	printf("\tregister int inputsample asm(\""INPUTSAMPLE"\");\n");
 	printf("\tregister int integrator1 asm(\""INTEGRATOR1"\");\n");
 	printf("\tregister int integrator2 asm(\""INTEGRATOR2"\");\n");
@@ -57,7 +63,7 @@ void main()
 
 	printf("\t//WORKING SECTION\n");
 
-#ifdef ARM_ASM
+#if ( defined(__arm__ ) || defined(ARM_ASM) ) && !defined(USE_C_GENERIC)
 	printf("\t__asm__ (\n");
 
 	printf("\t\"tst "INTEGRATOR2", #0\\n\\t\"\n\n");
@@ -123,5 +129,5 @@ void main()
 	printf("}\n");
 	
 
-
+	return 0;
 }

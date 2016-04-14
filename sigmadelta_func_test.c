@@ -23,7 +23,7 @@ const int oversample = 32;
 #define M_PI 3.14159265358979323846
 
 
-void main()
+int main()
 {
 	int samples = 3900;
 	float samplerate = 3.9e6;
@@ -80,6 +80,8 @@ void main()
 
 		}
 	}
+
+	return 0;
 }
 
 
