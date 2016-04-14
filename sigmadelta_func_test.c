@@ -1,63 +1,26 @@
+/*
+ * Test for optimized SigmaDelta Function Compiler for ARM
+ *
+ * Author: Georg Ottinger <georg.ottinger@oteloegen.at>
+ * Copyright 2016 - Georg Ottinger
+ *
+ * Inspired by work from Jeroen Domburg (Spritetm)
+ * https://github.com/espressif/ESP8266_MP3_DECODER/blob/master/mp3/user/user_main.c
+ *
+ *
+ * This program is free software; you can redistribute  it and/or modify it
+ * under  the terms of  the GNU General  Public License as published by the
+ * Free Software Foundation;  either version 2 of the  License, or (at your
+ * option) any later version.
+ */
+
 #include <stdio.h>
 #include <math.h>
 
+#include "sigmadelta_func.h"
+
 const int oversample = 32;
 #define M_PI 3.14159265358979323846
-extern int sigmadelta_func(int s);
-
-//2nd order delta-sigma DAC
-//See http://www.beis.de/Elektronik/DeltaSigma/DeltaSigma.html for a nice explanation
-static int sampToI2sDeltaSigma(int s) {
-	int x;
-	int val=0;
-	int w;
-	static int i1v=0, i2v=0;
-	static int outReg=0;
-	for (x=0; x<oversample; x++) {
-		val<<=1; //next bit
-		w=s;
-		if (outReg>0) w-=32767; else w+=32767; //Difference 1
-		//if (outReg>0) w-=1.0; else w+=1.0; //Difference 1
-
-		w+=i1v; i1v=w; //Integrator 1
-		if (outReg>0) w-=32767; else w+=32767; //Difference 2
-		//if (outReg>0) w-=1.0; else w+=1.0; //Difference 2
-		w+=i2v; i2v=w; //Integrator 2
-		outReg=w;		//register
-		if (w>0) val|=1; //comparator
-	}
-	return val;
-}
-
-//Topological Variant – Feed-Forward with Extra Input Feed-In
-//check: http://classes.engr.oregonstate.edu/eecs/spring2010/ece627/Lectures/2nd%20&%20Higher-Order2.pdf
-static int sampToI2sDeltaSigma_type2(float s) {
-	int x;
-	int val=0;
-	float w;
-	float outReg=0;
-	static float i1v=0, i2v=0;
-	static int lastbitout=0;
-	for (x=0; x<oversample; x++) {
-		val<<=1; //next bit
-		w=s;
-		if (lastbitout) w-=1.0; else w+=1.0; //Difference 1
-		outReg=s+i1v+i2v;
-
-		i2v = i1v;
-		i1v = w;		
-
-		//register
-		if (outReg>0) {
-			lastbitout = 1;
-			val|=1; //comparator
-		} else {
-			lastbitout = 0;
-		}
-
-	}
-	return val;
-}
 
 
 void main()
@@ -72,6 +35,9 @@ void main()
 	int s_int;
 	int sigmadelta;	
 	int i,j;
+
+
+	//find max amplitude for normalization process
 	
 	for(i=0; i < samples; i++)
 	{
@@ -90,16 +56,16 @@ void main()
 		s += sin(2.0*M_PI*(float)i/samplerate*frequency2);
 		s += sin(2.0*M_PI*(float)i/samplerate*frequency3);
 
-		s /= max;
-		s *= 0.9;
+
+		s /= max; //normalize sample
+		s *= 0.9; //90% max amplitude
 
 
-		if(s > 1.0) s = 1.0;
-		if(s < -1.0) s = -1.0;
-//		if(s > 0) s_int = s*(float)1024; else s_int = s*(float)1024;
-		s_int = s*1024;
+		if(s > 1.0) s = 1.0; // check upper range
+		if(s < -1.0) s = -1.0; // check lower range
+		s_int = s*1024; //convert float to integer
+
 		sigmadelta = sigmadelta_func(s_int);
-//		sigmadelta = sampToI2sDeltaSigma(s*(float)32767);
 
 		for(j=0; j < oversample; j++)
 		{
