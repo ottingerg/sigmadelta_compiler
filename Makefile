@@ -16,4 +16,4 @@ sigmadelta_func_testresults.csv: sigmadelta_func_test
 	./sigmadelta_func_test > sigmadelta_func_testresults.csv 
 
 clean:
-	rm sigmadelta_compiler sigmadelta_func.c sigmadelta_func_test
+	rm sigmadelta_compiler sigmadelta_func.c sigmadelta_func_test sigmadelta_func_testresults.csv
